@@ -1,0 +1,6 @@
+---
+# Mac-specific packages (installed via Homebrew)
+
+# Note: This file is for reference only
+# The macbook.yml playbook installs packages directly
+# Add packages by editing macbook.yml

@@ -1,0 +1,40 @@
+---
+# CachyOS package definitions
+
+# System utilities and core tools
+system_packages:
+  - htop
+  - btop
+  - neofetch
+  - rsync
+  - unzip
+  - p7zip
+  - tree
+  - openssh
+  - networkmanager
+
+# Modern CLI tools
+cli_packages:
+  - neovim
+  - fzf
+  - ripgrep
+  - fd
+  - bat
+  - eza
+  - zoxide
+  - starship
+  - zsh
+  - tmux
+
+# Development tools
+dev_packages:
+  - python
+  - python-pip
+  - nodejs
+  - npm
+  - go
+  - rust
+  - docker
+  - docker-compose
+  - git
+  - github-cli

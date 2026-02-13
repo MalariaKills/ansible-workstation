@@ -1,0 +1,82 @@
+---
+# CachyOS workstation setup playbook
+# Usage: ansible-playbook -i inventory.ini cachyos.yml --ask-become-pass
+
+- name: Setup CachyOS Workstation
+  hosts: workstations
+  become: yes
+  
+  vars_files:
+    - vars/cachyos-packages.yml
+  
+  tasks:
+    - name: Update package cache
+      community.general.pacman:
+        update_cache: yes
+    
+    - name: Install base development tools
+      community.general.pacman:
+        name:
+          - base-devel
+          - git
+          - curl
+          - wget
+        state: present
+    
+    - name: Install system packages
+      community.general.pacman:
+        name: "{{ system_packages }}"
+        state: present
+      tags: ['packages']
+    
+    - name: Install CLI tools
+      community.general.pacman:
+        name: "{{ cli_packages }}"
+        state: present
+      tags: ['packages', 'cli']
+    
+    - name: Install development packages
+      community.general.pacman:
+        name: "{{ dev_packages }}"
+        state: present
+      tags: ['packages', 'dev']
+    
+    - name: Enable and start SSH
+      systemd:
+        name: sshd
+        enabled: yes
+        state: started
+    
+    - name: Create .config directory
+      file:
+        path: "{{ ansible_env.HOME }}/.config"
+        state: directory
+        mode: '0755'
+      become: no
+    
+    - name: Clone unix_dotfiles repository
+      git:
+        repo: git@github.com:MalariaKills/unix_dotfiles.git
+        dest: "{{ ansible_env.HOME }}/unix_dotfiles"
+        version: main
+        accept_hostkey: yes
+      become: no
+    
+    - name: Backup existing nvim config if it exists
+      command: mv {{ ansible_env.HOME }}/.config/nvim {{ ansible_env.HOME }}/.config/nvim.bak.{{ ansible_date_time.epoch }}
+      args:
+        removes: "{{ ansible_env.HOME }}/.config/nvim"
+      become: no
+      ignore_errors: yes
+    
+    - name: Create symlink from unix_dotfiles/nvim to ~/.config/nvim
+      file:
+        src: "{{ ansible_env.HOME }}/unix_dotfiles/nvim"
+        dest: "{{ ansible_env.HOME }}/.config/nvim"
+        state: link
+        force: yes
+      become: no
+    
+    - name: Display completion message
+      debug:
+        msg: "CachyOS setup complete! Nvim config symlinked from ~/unix_dotfiles/nvim."
